@@ -4,6 +4,10 @@ WatchBird monitors directories and files, then run tasks automatically.
 
 WatchBird is strongly inspired by [guard](https://github.com/guard/guard).
 
+***notice***
+WatchBird is under development and has few feature yet.
+Currently, WatchBird provides linux inotify wrapper api only.
+
 ## Installation
 
 
