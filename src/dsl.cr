@@ -1,4 +1,4 @@
-require "./watcher"
+require "./watchbird/watcher"
 
 module WatchBird::DSL
   def watch(path, &blk : Event -> Void)
