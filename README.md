@@ -2,16 +2,18 @@
 
 WatchBird monitors directories and files, then run tasks automatically.
 
-WatchBird is strongly inspired by [guard](https://github.com/guard/guard) and [crake](https://github.com/MakeNowJust/crake).
+This library is strongly inspired by [guard](https://github.com/guard/guard) and [crake](https://github.com/MakeNowJust/crake).
 Thanks ;)
 
 ***notice:***  
 WatchBird is under development and has few feature yet.
-Currently, WatchBird provides linux inotify wrapper api only.
+Currently, it provides linux inotify wrapper api only.
+
+# Features
 
 WatchBird is just a library (inspired by [crake](https://github.com/MakeNowJust/crake)).
 You can use this library in your application.
-WatchBird also provides DSL module.
+it also provides DSL module.
 You can use this library with DSL syntax like *guard*.
 
 ## Installation
