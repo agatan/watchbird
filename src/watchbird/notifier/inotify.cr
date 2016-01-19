@@ -46,7 +46,7 @@ lib LibInotify
 end
 
 module WatchBird
-  class Inotify
+  class Notifier
 
     def initialize()
       @fd = LibInotify.inotify_init()
