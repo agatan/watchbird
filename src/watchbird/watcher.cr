@@ -14,8 +14,12 @@ module WatchBird
     end
 
     def register(pattern, &blk : Event -> Void)
+      register(pattern, blk)
+    end
+
+    def register(pattern, cb)
       path = File.expand_path(pattern)
-      @targets[path] = blk
+      @targets[path] = cb
       register_to_notifeir(path)
     end
 

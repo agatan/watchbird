@@ -1,0 +1,7 @@
+#!/bin/env crystal
+
+require "./src/watchbird/dsl"
+
+watch "./src/watchbird.cr" do |_|
+  puts `crystal spec`
+end
