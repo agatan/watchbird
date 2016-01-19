@@ -13,8 +13,9 @@ describe WatchBird do
         `touch #{dirname}/create-file`
 
         event = chan.receive
-        event.name.should eq "create-file"
-        event.status.should eq WatchBird::EventType::Create
+        event.should eq WatchBird::Event.new(WatchBird::EventType::Create,
+                                             "#{dirname}/create-file",
+                                             false)
       end
     end
 
@@ -30,8 +31,9 @@ describe WatchBird do
         `echo test > #{dirname}/modify-file`
 
         event = chan.receive
-        event.name.should eq "modify-file"
-        event.status.should eq WatchBird::EventType::Modify
+        event.should eq WatchBird::Event.new(WatchBird::EventType::Modify,
+                                             "#{dirname}/modify-file",
+                                             false)
       end
     end
 
@@ -47,9 +49,46 @@ describe WatchBird do
         `rm #{dirname}/delete-file`
 
         event = chan.receive
-        event.name.should eq "delete-file"
-        event.status.should eq WatchBird::EventType::Delete
+        event.should eq WatchBird::Event.new(WatchBird::EventType::Delete,
+                                             "#{dirname}/delete-file",
+                                             false)
       end
     end
+
+    it "should notify directory create event" do
+      with_tmpdir do |dirname|
+        ino = WatchBird::Notifier.new
+        ino.register(dirname)
+        chan = Channel(WatchBird::Event).new
+        spawn do
+          chan.send(ino.wait)
+        end
+        `mkdir #{dirname}/create-dir`
+
+        event = chan.receive
+        event.should eq WatchBird::Event.new(WatchBird::EventType::Create,
+                                             "#{dirname}/create-dir",
+                                             true)
+      end
+    end
+
+    it "should notify file modify directory" do
+      with_tmpdir do |dirname|
+        `touch #{dirname}/modify-file`
+        ino = WatchBird::Notifier.new
+        ino.register(dirname)
+        chan = Channel(WatchBird::Event).new
+        spawn do
+          chan.send(ino.wait)
+        end
+        `echo test > #{dirname}/modify-file`
+
+        event = chan.receive
+        event.should eq WatchBird::Event.new(WatchBird::EventType::Modify,
+                                             "#{dirname}/modify-file",
+                                             false)
+      end
+    end
+
   end
 end

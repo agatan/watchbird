@@ -94,7 +94,9 @@ module WatchBird
 
       inotify_event = (buf.to_unsafe as LibInotify::Event*).value
       name = String.new((buf.to_unsafe as LibC::Char*) + inotify_event.len)
-      Event.new(convert_event(inotify_event.mask), name)
+      name = "#{@watch[inotify_event.wd]}/#{name}"
+      is_dir = inotify_event.mask & LibInotify::IN_ISDIR != 0
+      Event.new(convert_event(inotify_event.mask), name, is_dir)
     end
 
     def destroy()
