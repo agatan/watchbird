@@ -7,7 +7,6 @@ Thanks ;)
 
 ***notice:***  
 WatchBird is under development and has few features yet.
-Currently, it provides linux inotify wrapper API only.
 
 # Features
 
