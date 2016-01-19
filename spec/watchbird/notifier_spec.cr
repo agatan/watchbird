@@ -6,7 +6,7 @@ describe WatchBird do
       with_tmpdir do |dirname|
         ino = WatchBird::Notifier.new
         ino.register(dirname)
-        chan = Channel(WatchBird::Event).new
+        chan = Channel(WatchBird::Event|Nil).new
         spawn do
           chan.send(ino.wait)
         end
@@ -24,7 +24,7 @@ describe WatchBird do
         `touch #{dirname}/modify-file`
         ino = WatchBird::Notifier.new
         ino.register(dirname)
-        chan = Channel(WatchBird::Event).new
+        chan = Channel(WatchBird::Event|Nil).new
         spawn do
           chan.send(ino.wait)
         end
@@ -42,7 +42,7 @@ describe WatchBird do
         `touch #{dirname}/delete-file`
         ino = WatchBird::Notifier.new
         ino.register(dirname)
-        chan = Channel(WatchBird::Event).new
+        chan = Channel(WatchBird::Event|Nil).new
         spawn do
           chan.send(ino.wait)
         end
@@ -59,7 +59,7 @@ describe WatchBird do
       with_tmpdir do |dirname|
         ino = WatchBird::Notifier.new
         ino.register(dirname)
-        chan = Channel(WatchBird::Event).new
+        chan = Channel(WatchBird::Event|Nil).new
         spawn do
           chan.send(ino.wait)
         end
@@ -77,7 +77,7 @@ describe WatchBird do
         `touch #{dirname}/modify-file`
         ino = WatchBird::Notifier.new
         ino.register(dirname)
-        chan = Channel(WatchBird::Event).new
+        chan = Channel(WatchBird::Event|Nil).new
         spawn do
           chan.send(ino.wait)
         end

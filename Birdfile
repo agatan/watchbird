@@ -2,6 +2,10 @@
 
 require "./src/watchbird/dsl"
 
-watch "./src/watchbird.cr" do |_|
+watch "./src/**/*.cr" do |_|
+  puts `crystal spec`
+end
+
+watch "./spec/**/*.cr" do |_|
   puts `crystal spec`
 end

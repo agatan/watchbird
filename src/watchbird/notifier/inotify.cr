@@ -55,6 +55,7 @@ module WatchBird
       end
       @watch = {} of LibC::Int => String
       @watch_rev = {} of String => LibC::Int
+      @closed = false
     end
 
     def register(path)
@@ -89,20 +90,29 @@ module WatchBird
       buf = Array(LibC::Char).new(255 + sizeof(LibInotify::Event) + 1)
       length = LibC.read(@fd, buf, 255 + sizeof(LibInotify::Event) + 1)
       if length < 0
+        if LibC.errno == LibC::EAGAIN && @closed
+          return
+        end
         raise Errno.new("read")
       end
 
       inotify_event = (buf.to_unsafe as LibInotify::Event*).value
-      name = String.new((buf.to_unsafe as LibC::Char*) + inotify_event.len)
-      name = "#{@watch[inotify_event.wd]}/#{name}"
+      inotify_name = String.new((buf.to_unsafe as LibC::Char*) + inotify_event.len)
+      name = @watch[inotify_event.wd]
+      if name[-1] == File::SEPARATOR
+        name += inotify_name
+      else 
+        name += File::SEPARATOR + inotify_name
+      end
       is_dir = inotify_event.mask & LibInotify::IN_ISDIR != 0
       Event.new(convert_event(inotify_event.mask), name, is_dir)
     end
 
-    def destroy()
+    def close()
       if LibC.close(@fd) < 0
         raise Errno.new("close")
       end
+      @closed = true
     end
 
     private def convert_event(flag)

@@ -8,15 +8,16 @@ describe WatchBird do
           Dir.cd(dirname)
           `touch #{dirname}/test`
           chan = Channel(WatchBird::Event).new
-          watcher = WatchBird::Watcher.new
-          watcher.register "test" do |ev|
-            chan.send(ev)
+          WatchBird::Watcher.watch do |watcher|
+            watcher.register "test" do |ev|
+              chan.send(ev)
+            end
+            spawn { watcher.run }
+            File.write("#{dirname}#{File::SEPARATOR}test", "test watcher")
+            event = chan.receive
+            event.name.should eq "#{dirname}#{File::SEPARATOR}test"
+            event.status.should eq WatchBird::EventType::Modify
           end
-          spawn { watcher.run }
-          File.write("#{dirname}#{File::SEPARATOR}test", "test watcher")
-          event = chan.receive
-          event.name.should eq "#{dirname}#{File::SEPARATOR}test"
-          event.status.should eq WatchBird::EventType::Modify
         end
       end
     end

@@ -1,5 +1,6 @@
 require "./event"
 require "./notifier"
+require "./pattern"
 
 module WatchBird
   class Watcher
@@ -10,30 +11,64 @@ module WatchBird
 
     def initialize()
       @notifier = Notifier.new
-      @targets = {} of String => (Event -> Void)
+      @patterns = [] of Pattern
+      @callbacks = [] of Event ->
     end
 
-    def register(pattern, &blk : Event -> Void)
-      register(pattern, blk)
+    def self.watch(&blk)
+      ins = new
+      begin
+        yield ins
+      ensure
+        ins.close
+      end
     end
 
-    def register(pattern, cb)
-      path = File.expand_path(pattern)
-      @targets[path] = cb
-      register_to_notifeir(path)
+    def register(pattern : String, &blk : Event -> )
+      register(Pattern.new(pattern), blk)
+    end
+
+    def register(pattern : String, cb )
+      register(Pattern.new(pattern), cb)
+    end
+
+    def register(pattern : Pattern, cb)
+      @patterns << pattern
+      @callbacks << cb
+      register_to_notifeir(pattern)
     end
 
     def run()
       loop do
         event = @notifier.wait()
-        @targets[event.name]?.try &.call(event)
+        unless event
+          return
+        end
+        @patterns.each_with_index do |pat, i|
+          if pat.match?(event.not_nil!.name)
+            @callbacks[i].call(event.not_nil!)
+          end
+        end
       end
     end
 
-    private def register_to_notifeir(path)
-      # first, not support glob pattern, but path.
-      if Dir.exists?(File.dirname(path))
-        @notifier.register(File.dirname(path))
+    def close()
+      @notifier.close
+    end
+
+    private def register_to_notifeir(pattern)
+      @notifier.register(pattern.fixed)
+      Dir.foreach(pattern.fixed) do |name|
+        unless name == "." || name == ".."
+          fullname = pattern.fixed
+          if fullname[-1] != File::SEPARATOR
+            fullname += File::SEPARATOR
+          end
+          fullname += name
+          if Dir.exists?(fullname)
+            @notifier.register(fullname)
+          end
+        end
       end
     end
 
