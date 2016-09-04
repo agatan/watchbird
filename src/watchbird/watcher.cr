@@ -4,12 +4,11 @@ require "./pattern"
 
 module WatchBird
   class Watcher
-
     INSTANCE = new
 
-    @notifier :: Notifier
+    @notifier : Notifier
 
-    def initialize()
+    def initialize
       @notifier = Notifier.new
       @patterns = [] of Pattern
       @callbacks = [] of Event ->
@@ -24,11 +23,11 @@ module WatchBird
       end
     end
 
-    def register(pattern : String, &blk : Event -> )
+    def register(pattern : String, &blk : Event ->)
       register(Pattern.new(pattern), blk)
     end
 
-    def register(pattern : String, cb )
+    def register(pattern : String, cb)
       register(Pattern.new(pattern), cb)
     end
 
@@ -38,9 +37,9 @@ module WatchBird
       register_to_notifeir(pattern)
     end
 
-    def run()
+    def run
       loop do
-        event = @notifier.wait()
+        event = @notifier.wait
         unless event
           return
         end
@@ -52,7 +51,7 @@ module WatchBird
       end
     end
 
-    def close()
+    def close
       @notifier.close
     end
 
@@ -71,6 +70,5 @@ module WatchBird
         end
       end
     end
-
   end
 end

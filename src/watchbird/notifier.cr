@@ -1,7 +1,7 @@
 require "./event"
 
-ifdef linux
+{% if flag?(:linux) %}
   require "./notifier/inotify"
-else
-  raise "not implemented yet in darwin"
-end
+{% else %}
+  {% raise "not implemented yet in darwin" %}
+{% end %}
