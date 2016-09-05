@@ -52,9 +52,9 @@ module WatchBird
       if @fd < 0
         raise Errno.new("inotify_init")
       end
+      @io = IO::FileDescriptor.new(@fd)
       @watch = {} of LibC::Int => String
       @watch_rev = {} of String => LibC::Int
-      @closed = false
     end
 
     def register(path)
@@ -86,17 +86,37 @@ module WatchBird
     end
 
     def wait
-      buf = Array(LibC::Char).new(255 + sizeof(LibInotify::Event) + 1)
-      length = LibC.read(@fd, buf, 255 + sizeof(LibInotify::Event) + 1)
-      if length < 0
-        if LibC.errno == LibC::EAGAIN && @closed
+      buf = uninitialized UInt8[sizeof(LibInotify::Event)]
+
+      begin
+        size = @io.read(buf.to_slice)
+        raise "inotify read() returned 0!" if size == 0
+      rescue e : IO::Error
+        if e.message == "closed stream"
           return
+        else
+          raise e
         end
-        raise Errno.new("read")
       end
 
       inotify_event = buf.to_unsafe.as(LibInotify::Event*).value
-      inotify_name = String.new(buf.to_unsafe.as(LibC::Char*) + inotify_event.len)
+
+      string_buf = uninitialized UInt8[512]
+      name_slice = string_buf.to_slice[0, inotify_event.len]
+      raise "inotify read() returned 0!" if @io.read(name_slice) == 0
+
+      # Remove null bytes from end
+      last_index = 0
+      (name_slice.size - 1).downto(0) do |i|
+        if name_slice[i] == 0
+          last_index = i
+        else
+          break
+        end
+      end
+
+      inotify_name = String.new(name_slice[0, last_index])
+
       name = @watch[inotify_event.wd]
       if name[-1] == File::SEPARATOR
         name += inotify_name
@@ -108,10 +128,7 @@ module WatchBird
     end
 
     def close
-      if LibC.close(@fd) < 0
-        raise Errno.new("close")
-      end
-      @closed = true
+      @io.close
     end
 
     private def convert_event(flag)
@@ -122,8 +139,8 @@ module WatchBird
       if flag & LibInotify::IN_CREATE != 0
         event_type |= EventType::Create
       end
-      [LibInotify::IN_DELETE, LibInotify::IN_DELETE_SELF,
-        LibInotify::IN_MOVE_SELF, LibInotify::IN_MOVE].each do |del|
+      {LibInotify::IN_DELETE, LibInotify::IN_DELETE_SELF,
+        LibInotify::IN_MOVE_SELF, LibInotify::IN_MOVE}.each do |del|
         if flag & del != 0
           event_type |= EventType::Delete
         end
