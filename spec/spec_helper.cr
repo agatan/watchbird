@@ -1,7 +1,7 @@
 require "spec"
 require "../src/watchbird"
 
-def with_tmpdir()
+def with_tmpdir
   dirname = `mktemp -d`.chomp
   begin
     yield dirname
@@ -9,4 +9,3 @@ def with_tmpdir()
     `rm -r #{dirname}`
   end
 end
-

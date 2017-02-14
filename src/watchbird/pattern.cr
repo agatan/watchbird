@@ -1,6 +1,8 @@
 module WatchBird
   class Pattern
-    getter :fixed, :rest, :pattern
+    getter fixed : String
+    getter rest : Array(String)
+    getter pattern : String
 
     def initialize(pat : String)
       abs_path = File.expand_path(pat)

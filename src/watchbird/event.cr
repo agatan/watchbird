@@ -7,15 +7,16 @@ module WatchBird
   end
 
   class Event
-    @name :: String
-    @status :: EventType
-    @is_dir :: Bool
+    getter name : String
+    getter status : EventType
 
-    getter :name, :status
+    @is_dir : Bool
 
     def initialize(@status, @name, @is_dir); end
 
-    def dir?; @is_dir; end
+    def dir?
+      @is_dir
+    end
 
     def ==(other)
       name == other.name && status == other.status && dir? == other.dir?

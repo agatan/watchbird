@@ -6,16 +6,17 @@ describe WatchBird do
       with_tmpdir do |dirname|
         ino = WatchBird::Notifier.new
         ino.register(dirname)
-        chan = Channel(WatchBird::Event|Nil).new
+        chan = Channel(WatchBird::Event | Nil).new
         spawn do
           chan.send(ino.wait)
         end
         `touch #{dirname}/create-file`
 
         event = chan.receive
-        event.should eq WatchBird::Event.new(WatchBird::EventType::Create,
-                                             "#{dirname}/create-file",
-                                             false)
+        event.should eq WatchBird::Event.new(
+          WatchBird::EventType::Create,
+          "#{dirname}/create-file",
+          false)
       end
     end
 
@@ -24,16 +25,17 @@ describe WatchBird do
         `touch #{dirname}/modify-file`
         ino = WatchBird::Notifier.new
         ino.register(dirname)
-        chan = Channel(WatchBird::Event|Nil).new
+        chan = Channel(WatchBird::Event | Nil).new
         spawn do
           chan.send(ino.wait)
         end
         `echo test > #{dirname}/modify-file`
 
         event = chan.receive
-        event.should eq WatchBird::Event.new(WatchBird::EventType::Modify,
-                                             "#{dirname}/modify-file",
-                                             false)
+        event.should eq WatchBird::Event.new(
+          WatchBird::EventType::Modify,
+          "#{dirname}/modify-file",
+          false)
       end
     end
 
@@ -42,16 +44,17 @@ describe WatchBird do
         `touch #{dirname}/delete-file`
         ino = WatchBird::Notifier.new
         ino.register(dirname)
-        chan = Channel(WatchBird::Event|Nil).new
+        chan = Channel(WatchBird::Event | Nil).new
         spawn do
           chan.send(ino.wait)
         end
         `rm #{dirname}/delete-file`
 
         event = chan.receive
-        event.should eq WatchBird::Event.new(WatchBird::EventType::Delete,
-                                             "#{dirname}/delete-file",
-                                             false)
+        event.should eq WatchBird::Event.new(
+          WatchBird::EventType::Delete,
+          "#{dirname}/delete-file",
+          false)
       end
     end
 
@@ -59,16 +62,17 @@ describe WatchBird do
       with_tmpdir do |dirname|
         ino = WatchBird::Notifier.new
         ino.register(dirname)
-        chan = Channel(WatchBird::Event|Nil).new
+        chan = Channel(WatchBird::Event | Nil).new
         spawn do
           chan.send(ino.wait)
         end
         `mkdir #{dirname}/create-dir`
 
         event = chan.receive
-        event.should eq WatchBird::Event.new(WatchBird::EventType::Create,
-                                             "#{dirname}/create-dir",
-                                             true)
+        event.should eq WatchBird::Event.new(
+          WatchBird::EventType::Create,
+          "#{dirname}/create-dir",
+          true)
       end
     end
 
@@ -77,18 +81,18 @@ describe WatchBird do
         `touch #{dirname}/modify-file`
         ino = WatchBird::Notifier.new
         ino.register(dirname)
-        chan = Channel(WatchBird::Event|Nil).new
+        chan = Channel(WatchBird::Event | Nil).new
         spawn do
           chan.send(ino.wait)
         end
         `echo test > #{dirname}/modify-file`
 
         event = chan.receive
-        event.should eq WatchBird::Event.new(WatchBird::EventType::Modify,
-                                             "#{dirname}/modify-file",
-                                             false)
+        event.should eq WatchBird::Event.new(
+          WatchBird::EventType::Modify,
+          "#{dirname}/modify-file",
+          false)
       end
     end
-
   end
 end
