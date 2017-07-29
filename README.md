@@ -5,7 +5,7 @@ WatchBird monitors directories and files, runs tasks automatically.
 This library is strongly inspired by [guard](https://github.com/guard/guard) and [crake](https://github.com/MakeNowJust/crake).
 Thanks ;)
 
-***notice:***  
+***notice:***
 WatchBird is under development and has few features yet.
 
 # Features
@@ -42,7 +42,7 @@ watch "./**/*.cr" do |ev|
 end
 ```
 
-and execute `watchbird.cr` like `crystal watchbird.cr`.
+and execute `crystal watchbird.cr`.
 
 This repository contains sample `watchbird.cr` file to run spec automatically.
 
@@ -56,4 +56,4 @@ This repository contains sample `watchbird.cr` file to run spec automatically.
 
 ## Contributors
 
-- [agatan](https://github.com/agatan) agatan - creator, maintainer
+- [agatan](https://github.com/agatan) Naomichi Agata - creator, maintainer
